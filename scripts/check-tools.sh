@@ -26,10 +26,31 @@ check_tool() {
   fi
 }
 
+check_devtools() {
+  local devtools_dir="${XDG_DATA_HOME:-$HOME/.local/share}/devbase-justkit"
+  if [[ -d "$devtools_dir" ]]; then
+    print_success "devbase-justkit ($devtools_dir)"
+    return 0
+  else
+    print_error "devbase-justkit (not installed)"
+    return 1
+  fi
+}
+
 main() {
   activate_mise
 
-  local tools=("$@")
+  local check_devtools_flag=false
+  local tools=()
+
+  for arg in "$@"; do
+    if [[ "$arg" == "--check-devtools" ]]; then
+      check_devtools_flag=true
+    else
+      tools+=("$arg")
+    fi
+  done
+
   if [[ ${#tools[@]} -eq 0 ]]; then
     tools=(mise git just)
   fi
@@ -38,6 +59,12 @@ main() {
 
   printf "Checking tools...\n"
   printf "=================\n"
+
+  if [[ "$check_devtools_flag" == true ]]; then
+    if ! check_devtools; then
+      missing_count=$((missing_count + 1))
+    fi
+  fi
 
   for tool in "${tools[@]}"; do
     if ! check_tool "$tool"; then
