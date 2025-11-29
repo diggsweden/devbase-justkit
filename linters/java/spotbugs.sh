@@ -9,7 +9,7 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/../../utils/colors.sh"
 
-readonly MAVEN_OPTS="${MAVEN_OPTS:---batch-mode --no-transfer-progress --errors -Dstyle.color=always}"
+maven_opts=(--batch-mode --no-transfer-progress --errors -Dstyle.color=always)
 
 main() {
   print_header "JAVA SPOTBUGS"
@@ -24,7 +24,7 @@ main() {
     return 1
   fi
 
-  if mvn ${MAVEN_OPTS} spotbugs:check; then
+  if mvn "${maven_opts[@]}" spotbugs:check; then
     print_success "SpotBugs passed"
     return 0
   else

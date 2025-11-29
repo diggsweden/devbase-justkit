@@ -64,13 +64,13 @@ just_header() {
 }
 
 # Run command, show output only on failure
-# Usage: source colors.sh && just_run "command" "description"
+# Usage: source colors.sh && just_run "description" arg1 arg2 ...
 just_run() {
-  local cmd="$1"
-  local desc="$2"
-  printf " %b%s%b\n" "${DIM}" "$cmd" "${NC}"
+  local desc="$1"
+  shift
+  printf " %b%s%b\n" "${DIM}" "$*" "${NC}"
   local output
-  if output=$(eval "$cmd" 2>&1); then
+  if output=$("$@" 2>&1); then
     printf "%b%s%b %s completed\n" "${GREEN}" "${CHECK}" "${NC}" "$desc"
     return 0
   else

@@ -9,7 +9,7 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/../../utils/colors.sh"
 
-readonly MAVEN_OPTS="${MAVEN_OPTS:---batch-mode --no-transfer-progress --errors -Dstyle.color=always}"
+maven_opts=(--batch-mode --no-transfer-progress --errors -Dstyle.color=always)
 
 main() {
   print_header "JAVA LINTING (ALL)"
@@ -25,7 +25,7 @@ main() {
   fi
 
   print_info "Building project (skip tests)..."
-  if ! mvn ${MAVEN_OPTS} install -DskipTests; then
+  if ! mvn "${maven_opts[@]}" install -DskipTests; then
     print_error "Build failed"
     return 1
   fi

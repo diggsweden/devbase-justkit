@@ -214,7 +214,7 @@ my-recipe:
     #!/usr/bin/env bash
     source "{{colors}}"
     just_header "My Task" "some command"
-    just_run "some command" "Task description"
+    just_run "Task description" some command arg1 arg2
     just_success "Task completed"
 ```
 
@@ -223,7 +223,7 @@ Available functions:
 | Function | Description |
 |----------|-------------|
 | `just_header "Title" "cmd"` | Cyan header with dim command |
-| `just_run "cmd" "desc"` | Run command, show output only on failure |
+| `just_run "desc" cmd args...` | Run command, show output only on failure |
 | `just_success "msg"` | Green ✓ message |
 | `just_error "msg"` | Red ✗ message |
 | `just_warn "msg"` | Yellow ! message |

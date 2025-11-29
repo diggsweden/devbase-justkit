@@ -9,7 +9,7 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/../../utils/colors.sh"
 
-readonly MAVEN_OPTS="${MAVEN_OPTS:---batch-mode --no-transfer-progress --errors -Dstyle.color=always}"
+maven_opts=(--batch-mode --no-transfer-progress --errors -Dstyle.color=always)
 
 check_maven() {
   if ! command -v mvn >/dev/null 2>&1; then
@@ -35,7 +35,7 @@ main() {
   fi
 
   print_info "Running tests..."
-  if mvn ${MAVEN_OPTS} clean verify; then
+  if mvn "${maven_opts[@]}" clean verify; then
     print_success "Java tests passed"
     return 0
   else

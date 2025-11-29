@@ -11,8 +11,7 @@ source "${SCRIPT_DIR}/../utils/colors.sh"
 
 activate_mise() {
   if command -v mise >/dev/null 2>&1; then
-    PROMPT_COMMAND="${PROMPT_COMMAND:-}"
-    eval "$(mise activate bash)"
+    eval "$(mise hook-env -s bash 2>/dev/null)" || true
   fi
 }
 

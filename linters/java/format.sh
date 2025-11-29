@@ -9,7 +9,7 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/../../utils/colors.sh"
 
-readonly MAVEN_OPTS="${MAVEN_OPTS:---batch-mode --no-transfer-progress --errors -Dstyle.color=always}"
+maven_opts=(--batch-mode --no-transfer-progress --errors -Dstyle.color=always)
 readonly ACTION="${1:-check}"
 
 check_maven() {
@@ -25,7 +25,7 @@ has_pom() {
 
 check_format() {
   print_info "Checking Java formatting..."
-  if mvn ${MAVEN_OPTS} formatter:validate; then
+  if mvn "${maven_opts[@]}" formatter:validate; then
     print_success "Java formatting check passed"
     return 0
   else
@@ -36,7 +36,7 @@ check_format() {
 
 fix_format() {
   print_info "Formatting Java code..."
-  if mvn ${MAVEN_OPTS} formatter:format; then
+  if mvn "${maven_opts[@]}" formatter:format; then
     print_success "Java code formatted"
     return 0
   else
