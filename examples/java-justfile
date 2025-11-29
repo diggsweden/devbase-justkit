@@ -1,0 +1,190 @@
+# SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# Example justfile for a Java/Maven project using devbase-justkit
+
+devtools_repo := "https://github.com/diggsweden/devbase-justkit"
+devtools_dir := env("XDG_DATA_HOME", env("HOME") + "/.local/share") + "/devbase-justkit"
+lint := devtools_dir + "/linters"
+java_lint := devtools_dir + "/linters/java"
+colors := devtools_dir + "/utils/colors.sh"
+
+maven_opts := "--batch-mode --no-transfer-progress --errors -Dstyle.color=always"
+
+# ==================================================================================== #
+# DEFAULT
+# ==================================================================================== #
+
+default:
+    @printf "\033[1;36m My Java Project\033[0m\n\n"
+    @printf "Quick start: \033[1;32mjust setup-devtools\033[0m | \033[1;34mjust verify\033[0m\n\n"
+    @just --list --unsorted
+
+# ==================================================================================== #
+# SETUP
+# ==================================================================================== #
+
+# ▪ Setup devtools (clone or update)
+[group('setup')]
+setup-devtools:
+    @{{devtools_dir}}/scripts/setup.sh "{{devtools_repo}}" "{{devtools_dir}}"
+
+# Check required tools
+[group('setup')]
+check-tools:
+    @{{devtools_dir}}/scripts/check-tools.sh mise git just java mvn rumdl yamlfmt actionlint gitleaks shellcheck shfmt conform reuse
+
+# Install tools via mise
+[group('setup')]
+tools-install:
+    @mise install
+
+# ==================================================================================== #
+# VERIFY
+# ==================================================================================== #
+
+# ▪ Run all checks
+[group('verify')]
+verify: check-tools lint-all test
+    #!/usr/bin/env bash
+    source "{{colors}}"
+    just_success "All checks passed"
+
+# ==================================================================================== #
+# LINT
+# ==================================================================================== #
+
+# ▪ Run all linters
+[group('lint')]
+lint-all: lint-commits lint-secrets lint-yaml lint-markdown lint-shell lint-shell-fmt lint-actions lint-license lint-java
+    #!/usr/bin/env bash
+    source "{{colors}}"
+    just_success "All linting checks completed"
+
+# Validate commit messages
+[group('lint')]
+lint-commits:
+    @{{lint}}/commits.sh
+
+# Scan for secrets
+[group('lint')]
+lint-secrets:
+    @{{lint}}/secrets.sh
+
+# Lint YAML files
+[group('lint')]
+lint-yaml:
+    @{{lint}}/yaml.sh check
+
+# Lint markdown files
+[group('lint')]
+lint-markdown:
+    @{{lint}}/markdown.sh check
+
+# Lint shell scripts
+[group('lint')]
+lint-shell:
+    @{{lint}}/shell.sh
+
+# Check shell formatting
+[group('lint')]
+lint-shell-fmt:
+    @{{lint}}/shell-fmt.sh check
+
+# Lint GitHub Actions
+[group('lint')]
+lint-actions:
+    @{{lint}}/github-actions.sh
+
+# Check license compliance
+[group('lint')]
+lint-license:
+    @{{lint}}/license.sh
+
+# Lint Java code (all: checkstyle, pmd, spotbugs)
+[group('lint')]
+lint-java:
+    @{{java_lint}}/lint.sh
+
+# Lint Java - checkstyle only
+[group('lint')]
+lint-java-checkstyle:
+    @{{java_lint}}/checkstyle.sh
+
+# Lint Java - pmd only
+[group('lint')]
+lint-java-pmd:
+    @{{java_lint}}/pmd.sh
+
+# Lint Java - spotbugs only
+[group('lint')]
+lint-java-spotbugs:
+    @{{java_lint}}/spotbugs.sh
+
+# Check Java formatting
+[group('lint')]
+lint-java-fmt:
+    @{{java_lint}}/format.sh check
+
+# ==================================================================================== #
+# LINT-FIX
+# ==================================================================================== #
+
+# ▪ Fix all auto-fixable issues
+[group('lint-fix')]
+lint-fix: lint-yaml-fix lint-markdown-fix lint-shell-fmt-fix lint-java-fmt-fix
+    #!/usr/bin/env bash
+    source "{{colors}}"
+    just_success "All auto-fixes completed"
+
+# Fix YAML formatting
+[group('lint-fix')]
+lint-yaml-fix:
+    @{{lint}}/yaml.sh fix
+
+# Fix markdown formatting
+[group('lint-fix')]
+lint-markdown-fix:
+    @{{lint}}/markdown.sh fix
+
+# Fix shell formatting
+[group('lint-fix')]
+lint-shell-fmt-fix:
+    @{{lint}}/shell-fmt.sh fix
+
+# Fix Java formatting
+[group('lint-fix')]
+lint-java-fmt-fix:
+    @{{java_lint}}/format.sh fix
+
+# ==================================================================================== #
+# TEST
+# ==================================================================================== #
+
+# ▪ Run tests
+[group('test')]
+test:
+    @{{java_lint}}/test.sh
+
+# ==================================================================================== #
+# BUILD
+# ==================================================================================== #
+
+# ▪ Build project
+[group('build')]
+build:
+    #!/usr/bin/env bash
+    source "{{colors}}"
+    just_header "Building" "mvn install -DskipTests"
+    mvn {{maven_opts}} install -DskipTests
+    just_success "Build completed"
+
+# Clean build artifacts
+[group('build')]
+clean:
+    #!/usr/bin/env bash
+    source "{{colors}}"
+    just_header "Cleaning" "mvn clean"
+    mvn clean
+    just_success "Clean completed"

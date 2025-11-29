@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+#
+# SPDX-License-Identifier: MIT
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../utils/colors.sh"
+
+readonly ACTION="${1:-check}"
+
+check_markdown() {
+  if rumdl check .; then
+    print_success "Markdown linting passed"
+    return 0
+  else
+    print_error "Markdown linting failed - run 'just lint-markdown-fix' to fix"
+    return 1
+  fi
+}
+
+fix_markdown() {
+  if rumdl check --fix .; then
+    print_success "Markdown files fixed"
+    return 0
+  else
+    print_error "Failed to fix markdown files"
+    return 1
+  fi
+}
+
+main() {
+  print_header "MARKDOWN LINTING (RUMDL)"
+
+  if ! command -v rumdl >/dev/null 2>&1; then
+    print_error "rumdl not found. Install with: mise install"
+    return 1
+  fi
+
+  case "$ACTION" in
+  check) check_markdown ;;
+  fix) fix_markdown ;;
+  *)
+    print_error "Unknown action: $ACTION"
+    printf "Usage: %s [check|fix]\n" "$0"
+    return 1
+    ;;
+  esac
+}
+
+main
