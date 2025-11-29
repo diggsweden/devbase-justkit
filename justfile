@@ -35,7 +35,7 @@ verify:
 
 # ▪ Run all linters
 [group('lint')]
-lint-all: lint-secrets lint-yaml lint-shell lint-shell-fmt lint-license
+lint-all: lint-secrets lint-yaml lint-markdown lint-shell lint-shell-fmt lint-license
     #!/usr/bin/env bash
     source "{{colors}}"
     just_success "All linting checks completed"
@@ -49,6 +49,11 @@ lint-secrets:
 [group('lint')]
 lint-yaml:
     @{{lint}}/yaml.sh check
+
+# Lint markdown files (rumdl)
+[group('lint')]
+lint-markdown:
+    @{{lint}}/markdown.sh check MD013
 
 # Lint shell scripts (shellcheck)
 [group('lint')]
@@ -71,7 +76,7 @@ lint-license:
 
 # ▪ Fix all auto-fixable issues
 [group('lint-fix')]
-lint-fix: lint-yaml-fix lint-shell-fmt-fix
+lint-fix: lint-yaml-fix lint-markdown-fix lint-shell-fmt-fix
     #!/usr/bin/env bash
     source "{{colors}}"
     just_success "All auto-fixes completed"
@@ -80,6 +85,11 @@ lint-fix: lint-yaml-fix lint-shell-fmt-fix
 [group('lint-fix')]
 lint-yaml-fix:
     @{{lint}}/yaml.sh fix
+
+# Fix markdown formatting
+[group('lint-fix')]
+lint-markdown-fix:
+    @{{lint}}/markdown.sh fix MD013
 
 # Fix shell formatting
 [group('lint-fix')]

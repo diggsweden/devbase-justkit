@@ -10,9 +10,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/../utils/colors.sh"
 
 readonly ACTION="${1:-check}"
+shift || true
+readonly DISABLE="${1:-}"
 
 check_markdown() {
-  if rumdl check .; then
+  local args=(check .)
+  [[ -n "$DISABLE" ]] && args+=(--disable "$DISABLE")
+  if rumdl "${args[@]}"; then
     print_success "Markdown linting passed"
     return 0
   else
@@ -22,7 +26,9 @@ check_markdown() {
 }
 
 fix_markdown() {
-  if rumdl check --fix .; then
+  local args=(check --fix .)
+  [[ -n "$DISABLE" ]] && args+=(--disable "$DISABLE")
+  if rumdl "${args[@]}"; then
     print_success "Markdown files fixed"
     return 0
   else

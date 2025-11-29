@@ -55,7 +55,7 @@ check_for_updates() {
 
   if [[ "$current" != "$latest" && "$latest" != "unknown" ]]; then
     read -p "Update available: $latest. Update? [y/N] " -n 1 -r
-    echo
+    printf "\n"
     if [[ $REPLY =~ ^[Yy]$ ]]; then
       update_to_version "$latest"
     fi

@@ -58,13 +58,13 @@ main() {
   fi
 
   case "$ACTION" in
-    check) check_format ;;
-    fix)   fix_format ;;
-    *)
-      print_error "Unknown action: $ACTION"
-      printf "Usage: %s [check|fix]\n" "$0"
-      return 1
-      ;;
+  check) check_format ;;
+  fix) fix_format ;;
+  *)
+    print_error "Unknown action: $ACTION"
+    printf "Usage: %s [check|fix]\n" "$0"
+    return 1
+    ;;
   esac
 }
 

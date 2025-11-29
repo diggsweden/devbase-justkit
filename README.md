@@ -1,10 +1,10 @@
+# devbase-justkit
+
 <!--
 SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
 
 SPDX-License-Identifier: CC0-1.0
 -->
-
-# devbase-justkit
 
 [![Tag](https://img.shields.io/github/v/tag/diggsweden/devbase-justkit?style=for-the-badge&color=green)](https://github.com/diggsweden/devbase-justkit/tags)
 
@@ -33,10 +33,25 @@ colors := devtools_dir + "/utils/colors.sh"
 
 # Setup devtools (clone or update)
 setup-devtools:
-    @{{devtools_dir}}/scripts/setup.sh "{{devtools_repo}}" "{{devtools_dir}}"
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [[ -d "{{devtools_dir}}" ]]; then
+        "{{devtools_dir}}/scripts/setup.sh" "{{devtools_repo}}" "{{devtools_dir}}"
+    else
+        printf "Cloning devbase-justkit to %s...\n" "{{devtools_dir}}"
+        mkdir -p "$(dirname "{{devtools_dir}}")"
+        git clone --depth 1 "{{devtools_repo}}" "{{devtools_dir}}"
+        git -C "{{devtools_dir}}" fetch --tags --quiet
+        latest=$(git -C "{{devtools_dir}}" describe --tags --abbrev=0 origin/main 2>/dev/null || echo "")
+        if [[ -n "$latest" ]]; then
+            git -C "{{devtools_dir}}" fetch --depth 1 origin tag "$latest" --quiet
+            git -C "{{devtools_dir}}" checkout "$latest" --quiet
+        fi
+        printf "Installed devbase-justkit %s\n" "${latest:-main}"
+    fi
 
 # Run all linters
-lint-all: lint-commits lint-secrets lint-yaml lint-markdown lint-shell lint-shell-fmt lint-actions lint-license
+lint-all: _ensure-devtools lint-commits lint-secrets lint-yaml lint-markdown lint-shell lint-shell-fmt lint-actions lint-license
 
 lint-commits:
     @{{lint}}/commits.sh
@@ -70,6 +85,13 @@ lint-actions:
 
 lint-license:
     @{{lint}}/license.sh
+
+[private]
+_ensure-devtools:
+    #!/usr/bin/env bash
+    if [[ ! -d "{{devtools_dir}}" ]]; then
+        just setup-devtools
+    fi
 ```
 
 Then run:
@@ -176,10 +198,11 @@ lint-rust:
     just_success "Rust linting passed"
 ```
 
-### Minimal (CI-focused)
+### General (CI-focused)
 
 ```just
-lint-all: lint-commits lint-secrets lint-license
+lint-all: lint-commits lint-secrets lint-license lint-yaml lint-markdown 
+lint-shell lint-shell-fmt lint-actions lint-license 
 ```
 
 ## Helper Functions
@@ -207,7 +230,7 @@ Available functions:
 
 ## Directory Structure
 
-```
+```text
 devbase-justkit/
 ├── linters/
 │   ├── java/
