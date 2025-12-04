@@ -76,10 +76,8 @@ verify: _ensure-devtools check-tools lint-all
 
 # ▪ Run all linters (uses base linters only)
 [group('lint')]
-lint-all: lint-base
-    #!/usr/bin/env bash
-    source "{{colors}}"
-    just_success "All linting checks completed"
+lint-all: _ensure-devtools
+    @just --justfile {{devtools_dir}}/justfile lint-base
 
 # Individual linter recipes (can be run separately)
 [group('lint')]
@@ -151,7 +149,4 @@ lint-shell-fmt-fix:
 
 [private]
 _ensure-devtools:
-    #!/usr/bin/env bash
-    if [[ ! -d "{{devtools_dir}}" ]]; then
-        just setup-devtools
-    fi
+    @just setup-devtools

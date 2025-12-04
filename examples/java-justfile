@@ -78,9 +78,10 @@ verify: _ensure-devtools check-tools lint-all test
 
 # ▪ Run all linters (base + Java)
 [group('lint')]
-lint-all: lint-base lint-java
+lint-all: _ensure-devtools lint-java
     #!/usr/bin/env bash
     source "{{colors}}"
+    just --justfile {{devtools_dir}}/justfile lint-base
     just_success "All linting checks completed"
 
 # Individual base linters (can be run separately)
@@ -217,7 +218,4 @@ clean:
 
 [private]
 _ensure-devtools:
-    #!/usr/bin/env bash
-    if [[ ! -d "{{devtools_dir}}" ]]; then
-        just setup-devtools
-    fi
+    @just setup-devtools
