@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+#
+# SPDX-License-Identifier: MIT
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../../utils/colors.sh"
+
+main() {
+  print_header "NODE ESLINT (JS/TS)"
+
+  if ! command -v npx >/dev/null 2>&1; then
+    print_error "npx not found. Install Node.js and npm"
+    return 1
+  fi
+
+  # Check if project has ESLint configured
+  if [[ ! -f "package.json" ]]; then
+    print_warn "No package.json found. Skipping ESLint"
+    return 0
+  fi
+
+  if ! grep -q "eslint" package.json 2>/dev/null; then
+    print_warn "ESLint not configured in package.json. Skipping"
+    return 0
+  fi
+
+  # Check if there's an npm script for lint
+  if grep -q '"lint"' package.json 2>/dev/null; then
+    npm run lint
+  else
+    # Fallback to direct eslint command
+    npx eslint .
+  fi
+
+  if [[ $? -eq 0 ]]; then
+    print_success "ESLint check passed"
+    return 0
+  else
+    print_error "ESLint check failed - run 'npm run lint -- --fix' or 'npx eslint . --fix' to fix"
+    return 1
+  fi
+}
+
+main

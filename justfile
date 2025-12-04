@@ -8,15 +8,22 @@
 lint := "./linters"
 colors := "./utils/colors.sh"
 
+# Color variables
+CYAN_BOLD := "\\033[1;36m"
+GREEN := "\\033[1;32m"
+BLUE := "\\033[1;34m"
+MAGENTA := "\\033[1;35m"
+NC := "\\033[0m"
+
 # ==================================================================================== #
 # DEFAULT - Show available recipes
 # ==================================================================================== #
 
 # Display available recipes
 default:
-    @printf "\033[1;36m DevBase JustKit\033[0m\n"
+    @printf "{{CYAN_BOLD}} DevBase JustKit{{NC}}\n"
     @printf "\n"
-    @printf "Quick start: \033[1;32mjust verify\033[0m | \033[1;34mjust lint-all\033[0m | \033[1;35mjust lint-fix\033[0m\n"
+    @printf "Quick start: {{GREEN}}just verify{{NC}} | {{BLUE}}just lint-all{{NC}} | {{MAGENTA}}just lint-fix{{NC}}\n"
     @printf "\n"
     @just --list --unsorted
 
@@ -33,12 +40,34 @@ verify:
 # LINT - Code quality checks
 # ==================================================================================== #
 
-# ▪ Run all linters
+# ▪ Run all base linters (universal linters for any project)
 [group('lint')]
-lint-all: lint-secrets lint-yaml lint-markdown lint-shell lint-shell-fmt lint-license
+lint-base: \
+    lint-commits \
+    lint-secrets \
+    lint-yaml \
+    lint-markdown \
+    lint-shell \
+    lint-shell-fmt \
+    lint-actions \
+    lint-license \
+    lint-container \
+    lint-xml
+    #!/usr/bin/env bash
+    source "{{colors}}"
+    just_success "All base linting checks completed"
+
+# ▪ Run all linters (default, uses lint-base)
+[group('lint')]
+lint-all: lint-base
     #!/usr/bin/env bash
     source "{{colors}}"
     just_success "All linting checks completed"
+
+# Validate commit messages (conform)
+[group('lint')]
+lint-commits:
+    @{{lint}}/commits.sh
 
 # Scan for secrets (gitleaks)
 [group('lint')]
@@ -65,10 +94,25 @@ lint-shell:
 lint-shell-fmt:
     @{{lint}}/shell-fmt.sh check
 
+# Lint GitHub Actions (actionlint)
+[group('lint')]
+lint-actions:
+    @{{lint}}/github-actions.sh
+
 # Check license compliance (reuse)
 [group('lint')]
 lint-license:
     @{{lint}}/license.sh
+
+# Lint containers (hadolint)
+[group('lint')]
+lint-container:
+    @{{lint}}/container.sh
+
+# Lint XML files (xmllint)
+[group('lint')]
+lint-xml:
+    @{{lint}}/xml.sh
 
 # ==================================================================================== #
 # LINT-FIX - Auto-fix linting violations

@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+#
+# SPDX-License-Identifier: MIT
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../../utils/colors.sh"
+
+readonly ACTION="${1:-check}"
+
+check_prettier() {
+  npx prettier --check .
+  if [[ $? -eq 0 ]]; then
+    print_success "Prettier check passed"
+    return 0
+  else
+    print_error "Prettier check failed - run 'just lint-node-format-fix' to fix"
+    return 1
+  fi
+}
+
+fix_prettier() {
+  npx prettier --write .
+  if [[ $? -eq 0 ]]; then
+    print_success "Prettier formatting applied"
+    return 0
+  else
+    print_error "Prettier formatting failed"
+    return 1
+  fi
+}
+
+main() {
+  print_header "NODE FORMATTING (PRETTIER)"
+
+  if ! command -v npx >/dev/null 2>&1; then
+    print_error "npx not found. Install Node.js and npm"
+    return 1
+  fi
+
+  # Check if project has Prettier configured
+  if [[ ! -f "package.json" ]]; then
+    print_warn "No package.json found. Skipping Prettier"
+    return 0
+  fi
+
+  if ! grep -q "prettier" package.json 2>/dev/null; then
+    print_warn "Prettier not configured in package.json. Skipping"
+    return 0
+  fi
+
+  case "$ACTION" in
+  check) check_prettier ;;
+  fix) fix_prettier ;;
+  *)
+    print_error "Unknown action: $ACTION"
+    printf "Usage: %s [check|fix]\n" "$0"
+    return 1
+    ;;
+  esac
+}
+
+main

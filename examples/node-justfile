@@ -2,15 +2,13 @@
 #
 # SPDX-License-Identifier: CC0-1.0
 
-# Example justfile for a Java/Maven project using devbase-justkit
+# Example justfile for a Node/TypeScript project using devbase-justkit
 
 devtools_repo := env("DEVBASE_JUSTKIT_REPO", "https://github.com/diggsweden/devbase-justkit")
 devtools_dir := env("XDG_DATA_HOME", env("HOME") + "/.local/share") + "/devbase-justkit"
 lint := devtools_dir + "/linters"
-java_lint := devtools_dir + "/linters/java"
+node_lint := devtools_dir + "/linters/node"
 colors := devtools_dir + "/utils/colors.sh"
-
-maven_opts := "--batch-mode --no-transfer-progress --errors -Dstyle.color=always"
 
 # Color variables
 CYAN_BOLD := "\\033[1;36m"
@@ -23,7 +21,7 @@ NC := "\\033[0m"
 # ==================================================================================== #
 
 default:
-    @printf "{{CYAN_BOLD}} My Java Project{{NC}}\n\n"
+    @printf "{{CYAN_BOLD}} My Node Project{{NC}}\n\n"
     @printf "Quick start: {{GREEN}}just setup-devtools{{NC}} | {{BLUE}}just verify{{NC}}\n\n"
     @just --list --unsorted
 
@@ -46,7 +44,7 @@ setup-devtools:
         latest=$(git -C "{{devtools_dir}}" describe --tags --abbrev=0 origin/main 2>/dev/null || echo "")
         if [[ -n "$latest" ]]; then
             git -C "{{devtools_dir}}" fetch --depth 1 origin tag "$latest" --quiet
-            git -C "{{devtools_dir}}" checkout "$latest" --quiet
+            git -C "{{devtools_dir}}" checkout "$latest" --quiet"
         fi
         printf "Installed devbase-justkit %s\n" "${latest:-main}"
     fi
@@ -54,12 +52,12 @@ setup-devtools:
 # Check required tools
 [group('setup')]
 check-tools: _ensure-devtools
-    @{{devtools_dir}}/scripts/check-tools.sh --check-devtools mise git just java mvn rumdl yamlfmt actionlint gitleaks shellcheck shfmt conform reuse
+    @{{devtools_dir}}/scripts/check-tools.sh --check-devtools mise git just node npm rumdl yamlfmt actionlint gitleaks shellcheck shfmt conform reuse
 
-# Install tools via mise
+# Install Node dependencies
 [group('setup')]
-tools-install: _ensure-devtools
-    @mise install
+deps-install:
+    npm install
 
 # ==================================================================================== #
 # VERIFY
@@ -76,9 +74,9 @@ verify: _ensure-devtools check-tools lint-all test
 # LINT
 # ==================================================================================== #
 
-# ▪ Run all linters (base + Java)
+# ▪ Run all linters (base + Node)
 [group('lint')]
-lint-all: lint-base lint-java
+lint-all: lint-base lint-node
     #!/usr/bin/env bash
     source "{{colors}}"
     just_success "All linting checks completed"
@@ -120,34 +118,25 @@ lint-license:
 lint-container:
     @{{lint}}/container.sh
 
+# Lint Node code (all: eslint, prettier, types)
 [group('lint')]
-lint-xml:
-    @{{lint}}/xml.sh
+lint-node:
+    @{{node_lint}}/lint.sh
 
-# Lint Java code (all: checkstyle, pmd, spotbugs)
+# Lint Node - eslint only
 [group('lint')]
-lint-java:
-    @{{java_lint}}/lint.sh
+lint-node-eslint:
+    @{{node_lint}}/eslint.sh
 
-# Lint Java - checkstyle only
+# Lint Node - prettier check only
 [group('lint')]
-lint-java-checkstyle:
-    @{{java_lint}}/checkstyle.sh
+lint-node-format:
+    @{{node_lint}}/format.sh check
 
-# Lint Java - pmd only
+# Lint Node - type checking only
 [group('lint')]
-lint-java-pmd:
-    @{{java_lint}}/pmd.sh
-
-# Lint Java - spotbugs only
-[group('lint')]
-lint-java-spotbugs:
-    @{{java_lint}}/spotbugs.sh
-
-# Check Java formatting
-[group('lint')]
-lint-java-fmt:
-    @{{java_lint}}/format.sh check
+lint-node-ts-types:
+    @{{node_lint}}/types.sh
 
 # ==================================================================================== #
 # LINT-FIX
@@ -155,30 +144,27 @@ lint-java-fmt:
 
 # ▪ Fix all auto-fixable issues
 [group('lint-fix')]
-lint-fix: _ensure-devtools lint-yaml-fix lint-markdown-fix lint-shell-fmt-fix lint-java-fmt-fix
+lint-fix: _ensure-devtools lint-yaml-fix lint-markdown-fix lint-shell-fmt-fix lint-node-format-fix
     #!/usr/bin/env bash
     source "{{colors}}"
     just_success "All auto-fixes completed"
 
-# Fix YAML formatting
 [group('lint-fix')]
 lint-yaml-fix:
     @{{lint}}/yaml.sh fix
 
-# Fix markdown formatting
 [group('lint-fix')]
 lint-markdown-fix:
     @{{lint}}/markdown.sh fix
 
-# Fix shell formatting
 [group('lint-fix')]
 lint-shell-fmt-fix:
     @{{lint}}/shell-fmt.sh fix
 
-# Fix Java formatting
+# Fix Node formatting
 [group('lint-fix')]
-lint-java-fmt-fix:
-    @{{java_lint}}/format.sh fix
+lint-node-format-fix:
+    @{{node_lint}}/format.sh fix
 
 # ==================================================================================== #
 # TEST
@@ -187,7 +173,11 @@ lint-java-fmt-fix:
 # ▪ Run tests
 [group('test')]
 test:
-    @{{java_lint}}/test.sh
+    #!/usr/bin/env bash
+    source "{{colors}}"
+    just_header "Running tests" "npm test"
+    npm test
+    just_success "Tests passed"
 
 # ==================================================================================== #
 # BUILD
@@ -198,8 +188,8 @@ test:
 build:
     #!/usr/bin/env bash
     source "{{colors}}"
-    just_header "Building" "mvn install -DskipTests"
-    mvn {{maven_opts}} install -DskipTests
+    just_header "Building" "npm run build"
+    npm run build
     just_success "Build completed"
 
 # Clean build artifacts
@@ -207,8 +197,8 @@ build:
 clean:
     #!/usr/bin/env bash
     source "{{colors}}"
-    just_header "Cleaning" "mvn clean"
-    mvn clean
+    just_header "Cleaning" "rm -rf dist node_modules"
+    rm -rf dist node_modules
     just_success "Clean completed"
 
 # ==================================================================================== #

@@ -13,108 +13,73 @@ SPDX-License-Identifier: CC0-1.0
 
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/diggsweden/devbase-justkit/badge?style=for-the-badge)](https://scorecard.dev/viewer/?uri=github.com/diggsweden/devbase-justkit)
 
-Shared linting and development tooling for just/mise projects.
+Reusable linting scripts for [Just](https://github.com/casey/just) task runner. Install once to `~/.local/share/devbase-justkit`, use across multiple projects.
 
-## Full Examples
+## What it does
 
-See `examples/` folder for complete, ready-to-use justfiles:
+- Runs 10+ linters (shellcheck, yamlfmt, gitleaks, etc.) with one command
+- Skip what you don't need - no XML files? No XML linting
+- Add language-specific linters (Java, Node/TypeScript) on top
+- Centralized linting - update once, affects all projects
+- No copy-paste of linter scripts and configs between projects
 
-- [`examples/java-justfile`](examples/java-justfile) - Java/Maven project
+## Requirements
+
+- [Just](https://github.com/casey/just) - task runner (install: `cargo install just` or see [Just installation](https://github.com/casey/just#installation))
+- [mise](https://mise.jdx.dev/) - tool version manager (install: `curl https://mise.run | sh` or see [mise installation](https://mise.jdx.dev/getting-started.html))
+- Git
 
 ## Quick Start
 
-Add to your project's justfile:
+1. **Copy an example justfile** to your project:
+   - [`examples/base-justfile`](examples/base-justfile) - Scripts/configs/docs only
+   - [`examples/java-justfile`](examples/java-justfile) - Java/Maven project
+   - [`examples/node-justfile`](examples/node-justfile) - Node/TypeScript project
 
-```just
-devtools_repo := env("DEVBASE_JUSTKIT_REPO", "https://github.com/diggsweden/devbase-justkit")
-devtools_dir := env("XDG_DATA_HOME", env("HOME") + "/.local/share") + "/devbase-justkit"
-lint := devtools_dir + "/linters"
-colors := devtools_dir + "/utils/colors.sh"
+2. **Run setup**:
 
-# Setup devtools (clone or update)
-setup-devtools:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    if [[ -d "{{devtools_dir}}" ]]; then
-        "{{devtools_dir}}/scripts/setup.sh" "{{devtools_repo}}" "{{devtools_dir}}"
-    else
-        printf "Cloning devbase-justkit to %s...\n" "{{devtools_dir}}"
-        mkdir -p "$(dirname "{{devtools_dir}}")"
-        git clone --depth 1 "{{devtools_repo}}" "{{devtools_dir}}"
-        git -C "{{devtools_dir}}" fetch --tags --quiet
-        latest=$(git -C "{{devtools_dir}}" describe --tags --abbrev=0 origin/main 2>/dev/null || echo "")
-        if [[ -n "$latest" ]]; then
-            git -C "{{devtools_dir}}" fetch --depth 1 origin tag "$latest" --quiet
-            git -C "{{devtools_dir}}" checkout "$latest" --quiet
-        fi
-        printf "Installed devbase-justkit %s\n" "${latest:-main}"
-    fi
+   ```bash
+   just setup-devtools  # Downloads to ~/.local/share/devbase-justkit
+   just lint-all        # Runs all linters
+   ```
 
-# Run all linters
-lint-all: _ensure-devtools lint-commits lint-secrets lint-yaml lint-markdown lint-shell lint-shell-fmt lint-actions lint-license
+That's it. The justfile calls scripts from `~/.local/share/devbase-justkit`.
 
-lint-commits:
-    @{{lint}}/commits.sh
+### Updates
 
-lint-secrets:
-    @{{lint}}/secrets.sh
+Run `just setup-devtools` again to check for updates:
 
-lint-yaml:
-    @{{lint}}/yaml.sh check
+- **Interactive**: Prompts "Update available: v1.2.3. Update? [y/N]"
+- **CI/non-interactive**: Auto-updates to latest tag
 
-lint-yaml-fix:
-    @{{lint}}/yaml.sh fix
+## How it works
 
-lint-markdown:
-    @{{lint}}/markdown.sh check
+You get base linters for free. Add language-specific linters if needed.
 
-lint-markdown-fix:
-    @{{lint}}/markdown.sh fix
+- **`lint-base`** - 10 linters that work on any project (YAML, shell, secrets, etc.)
+- **`lint-all`** - Uses `lint-base`, override to add Java/Node/Python linters
+- **Individual recipes** - Run `just lint-yaml` or `just lint-shell` separately
 
-lint-shell:
-    @{{lint}}/shell.sh
+### Base Linters
 
-lint-shell-fmt:
-    @{{lint}}/shell-fmt.sh check
+Run on every project. Skip automatically if no relevant files found:
 
-lint-shell-fmt-fix:
-    @{{lint}}/shell-fmt.sh fix
+| Recipe | Tool | Checks | Skips when |
+|--------|------|--------|------------|
+| `lint-commits` | conform | Commit message format | No commits to check |
+| `lint-secrets` | gitleaks | Secrets/credentials | Never (scans all) |
+| `lint-yaml` | yamlfmt | YAML formatting | Never (scans all) |
+| `lint-markdown` | rumdl | Markdown style | Never (scans all) |
+| `lint-shell` | shellcheck | Shell script bugs | No .sh files |
+| `lint-shell-fmt` | shfmt | Shell formatting | No .sh files |
+| `lint-actions` | actionlint | GitHub Actions syntax | No .github/workflows/ |
+| `lint-license` | reuse | License compliance | Never (scans all) |
+| `lint-container` | hadolint | Dockerfile best practices | No Containerfile/Dockerfile |
+| `lint-xml` | xmllint | XML syntax/formatting | No .xml files |
 
-lint-actions:
-    @{{lint}}/github-actions.sh
+### Language-Specific Linters
 
-lint-license:
-    @{{lint}}/license.sh
-
-[private]
-_ensure-devtools:
-    #!/usr/bin/env bash
-    if [[ ! -d "{{devtools_dir}}" ]]; then
-        just setup-devtools
-    fi
-```
-
-Then run:
-
-```bash
-just setup-devtools
-just lint-all
-```
-
-## Available Linters
-
-| Recipe | Tool | Skips when |
-|--------|------|------------|
-| `lint-commits` | conform | No commits to check |
-| `lint-secrets` | gitleaks | Never |
-| `lint-yaml` | yamlfmt | Never |
-| `lint-markdown` | rumdl | Never |
-| `lint-shell` | shellcheck | No .sh files |
-| `lint-shell-fmt` | shfmt | No .sh files |
-| `lint-actions` | actionlint | No .github/workflows/ |
-| `lint-license` | reuse | Never |
-
-### Java Linters
+#### Java
 
 | Recipe | Tool | Description |
 |--------|------|-------------|
@@ -126,54 +91,53 @@ just lint-all
 | `lint-java-fmt-fix` | formatter | Fix formatting |
 | `test-java` | maven | Run tests (mvn verify) |
 
-## Customizing lint-all
+#### Node/TypeScript
 
-Override `lint-all` in your project's justfile to tailor linting to your needs.
+| Recipe | Tool | Description |
+|--------|------|-------------|
+| `lint-node` | npm | Run all (eslint + prettier + types) |
+| `lint-node-eslint` | eslint | Code quality checks (JS/TS) |
+| `lint-node-format` | prettier | Code formatting check |
+| `lint-node-format-fix` | prettier | Fix code formatting |
+| `lint-node-ts-types` | tsc | TypeScript type checking |
+
+## Add language-specific linters
+
+Override `lint-all` in your justfile to add Java, Node, Python, etc.:
 
 ### Java/Maven Project
 
 ```just
 java_lint := devtools_dir + "/linters/java"
 
-lint-all: lint-commits lint-secrets lint-yaml lint-markdown lint-actions lint-license lint-java
+# Extend base linters with Java-specific ones
+lint-all: lint-base lint-java
 
 lint-java:
     @{{java_lint}}/lint.sh
 ```
 
-See [`examples/java-justfile`](examples/java-justfile) for full example with checkstyle, pmd, spotbugs, formatting and tests.
+See [`examples/java-justfile`](examples/java-justfile) for a complete example.
 
 ### Node/TypeScript Project
 
 ```just
-lint-all: lint-commits lint-secrets lint-yaml lint-markdown lint-actions lint-license lint-ts
+node_lint := devtools_dir + "/linters/node"
 
-lint-ts:
-    #!/usr/bin/env bash
-    source "{{colors}}"
-    just_header "TypeScript Linting" "npm run lint"
-    npm run lint
-    just_success "TypeScript linting passed"
+# Extend base linters with Node linters
+lint-all: lint-base lint-node
+
+lint-node:
+    @{{node_lint}}/lint.sh
 ```
 
-### Go Project
-
-```just
-lint-all: lint-commits lint-secrets lint-yaml lint-markdown lint-shell lint-shell-fmt lint-actions lint-license lint-go
-
-lint-go:
-    #!/usr/bin/env bash
-    source "{{colors}}"
-    just_header "Go Linting" "golangci-lint run"
-    go vet ./...
-    golangci-lint run
-    just_success "Go linting passed"
-```
+See [`examples/node-justfile`](examples/node-justfile) for a complete example.
 
 ### Python Project
 
 ```just
-lint-all: lint-commits lint-secrets lint-yaml lint-markdown lint-actions lint-license lint-python
+# Extend base linters with Python linters
+lint-all: lint-base lint-python
 
 lint-python:
     #!/usr/bin/env bash
@@ -184,10 +148,26 @@ lint-python:
     just_success "Python linting passed"
 ```
 
+### Go Project
+
+```just
+# Extend base linters with Go linters
+lint-all: lint-base lint-go
+
+lint-go:
+    #!/usr/bin/env bash
+    source "{{colors}}"
+    just_header "Go Linting" "golangci-lint run"
+    go vet ./...
+    golangci-lint run
+    just_success "Go linting passed"
+```
+
 ### Rust Project
 
 ```just
-lint-all: lint-commits lint-secrets lint-yaml lint-markdown lint-actions lint-license lint-rust
+# Extend base linters with Rust linters
+lint-all: lint-base lint-rust
 
 lint-rust:
     #!/usr/bin/env bash
@@ -198,16 +178,22 @@ lint-rust:
     just_success "Rust linting passed"
 ```
 
-### General (CI-focused)
+### Minimal Project (base linters only)
 
 ```just
-lint-all: lint-commits lint-secrets lint-license lint-yaml lint-markdown 
-lint-shell lint-shell-fmt lint-actions lint-license 
+# Default behavior - no need to override
+# Just run: just lint-all
 ```
 
-## Helper Functions
+### Multiple Languages
 
-Source `colors.sh` in bash recipes for consistent output:
+```just
+lint-all: lint-base lint-java lint-python lint-ts
+```
+
+## Utilities
+
+Use `colors.sh` for consistent output in custom recipes:
 
 ```just
 my-recipe:
@@ -262,13 +248,20 @@ devbase-justkit/
 │   │   ├── pmd.sh
 │   │   ├── spotbugs.sh
 │   │   └── test.sh
+│   ├── node/
+│   │   ├── eslint.sh
+│   │   ├── format.sh
+│   │   ├── lint.sh
+│   │   └── types.sh
 │   ├── commits.sh
+│   ├── container.sh
 │   ├── github-actions.sh
 │   ├── license.sh
 │   ├── markdown.sh
 │   ├── secrets.sh
 │   ├── shell-fmt.sh
 │   ├── shell.sh
+│   ├── xml.sh
 │   └── yaml.sh
 ├── scripts/
 │   ├── check-tools.sh
@@ -277,7 +270,9 @@ devbase-justkit/
 ├── utils/
 │   └── colors.sh
 ├── examples/
-│   └── java-justfile
+│   ├── base-justfile
+│   ├── java-justfile
+│   └── node-justfile
 ├── .mise.toml
 ├── justfile
 └── README.md
