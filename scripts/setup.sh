@@ -51,22 +51,19 @@ check_for_updates() {
   local current="$1"
   local latest="$2"
 
-  print_info "devtools installed: $current"
-
   if [[ "$current" != "$latest" && "$latest" != "unknown" ]]; then
     # Auto-update in CI/non-interactive mode, prompt in interactive mode
     if [[ "${CI:-false}" == "true" ]] || [[ ! -t 0 ]]; then
-      print_info "Auto-updating to $latest (non-interactive mode)"
+      print_info "Auto-updating devtools to $latest"
       update_to_version "$latest"
     else
+      print_info "devtools installed: $current"
       read -p "Update available: $latest. Update? [y/N] " -n 1 -r
       printf "\n"
       if [[ $REPLY =~ ^[Yy]$ ]]; then
         update_to_version "$latest"
       fi
     fi
-  else
-    print_success "Already at latest version"
   fi
 }
 
