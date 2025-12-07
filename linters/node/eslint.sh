@@ -19,12 +19,12 @@ main() {
 
   # Check if project has ESLint configured
   if [[ ! -f "package.json" ]]; then
-    print_warn "No package.json found. Skipping ESLint"
+    print_warning "No package.json found. Skipping ESLint"
     return 0
   fi
 
   if ! grep -q "eslint" package.json 2>/dev/null; then
-    print_warn "ESLint not configured in package.json. Skipping"
+    print_warning "ESLint not configured in package.json. Skipping"
     return 0
   fi
 

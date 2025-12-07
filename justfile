@@ -124,3 +124,20 @@ lint-markdown-fix:
 [group('lint-fix')]
 lint-shell-fmt-fix:
     @{{lint}}/shell-fmt.sh fix
+
+# ==================================================================================== #
+# TEST - Run tests
+# ==================================================================================== #
+
+# ▪ Setup test dependencies (BATS libraries)
+[group('test')]
+test-setup:
+    @./tests/setup-bats-libs.sh
+
+# ▪ Run all tests
+[group('test')]
+test:
+    #!/usr/bin/env bash
+    eval "$(mise activate bash)"
+    [[ -d tests/libs ]] || ./tests/setup-bats-libs.sh
+    bats tests/

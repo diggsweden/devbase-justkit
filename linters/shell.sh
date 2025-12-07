@@ -10,7 +10,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/../utils/colors.sh"
 
 find_shell_scripts() {
-  find . -type f \( -name "*.sh" -o -name "*.bash" \) -not -path "./.git/*" 2>/dev/null
+  find . -type f \( -name "*.sh" -o -name "*.bash" \) \
+    -not -path "./.git/*" \
+    -not -path "./tests/libs/*" \
+    2>/dev/null
 }
 
 main() {

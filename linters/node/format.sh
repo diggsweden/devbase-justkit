@@ -43,12 +43,12 @@ main() {
 
   # Check if project has Prettier configured
   if [[ ! -f "package.json" ]]; then
-    print_warn "No package.json found. Skipping Prettier"
+    print_warning "No package.json found. Skipping Prettier"
     return 0
   fi
 
   if ! grep -q "prettier" package.json 2>/dev/null; then
-    print_warn "Prettier not configured in package.json. Skipping"
+    print_warning "Prettier not configured in package.json. Skipping"
     return 0
   fi
 

@@ -31,26 +31,48 @@ detect_language_linters() {
   local recipes
   recipes=$(just --list 2>&1 || true)
 
-  # Java linters
-  if grep -qE "^\s+lint-java-checkstyle\s" <<<"$recipes"; then
-    LINTERS+=("Java Checkstyle|checkstyle|just lint-java-checkstyle")
-  fi
-  if grep -qE "^\s+lint-java-pmd\s" <<<"$recipes"; then
-    LINTERS+=("Java PMD|pmd|just lint-java-pmd")
-  fi
-  if grep -qE "^\s+lint-java-spotbugs\s" <<<"$recipes"; then
-    LINTERS+=("Java SpotBugs|spotbugs|just lint-java-spotbugs")
+  # Java linters - if lint-java exists, use it (calls scripts directly to show each row)
+  # Otherwise use individual recipes if they exist
+  if grep -qE "^\s+lint-java\s" <<<"$recipes"; then
+    local java_lint_dir="$(dirname "${SCRIPT_DIR}")/linters/java"
+    if [[ -d "$java_lint_dir" ]]; then
+      LINTERS+=("Java Checkstyle|checkstyle|${java_lint_dir}/checkstyle.sh")
+      LINTERS+=("Java PMD|pmd|${java_lint_dir}/pmd.sh")
+      LINTERS+=("Java SpotBugs|spotbugs|${java_lint_dir}/spotbugs.sh")
+    fi
+  else
+    # No lint-java, check for individual recipes
+    if grep -qE "^\s+lint-java-checkstyle\s" <<<"$recipes"; then
+      LINTERS+=("Java Checkstyle|checkstyle|just lint-java-checkstyle")
+    fi
+    if grep -qE "^\s+lint-java-pmd\s" <<<"$recipes"; then
+      LINTERS+=("Java PMD|pmd|just lint-java-pmd")
+    fi
+    if grep -qE "^\s+lint-java-spotbugs\s" <<<"$recipes"; then
+      LINTERS+=("Java SpotBugs|spotbugs|just lint-java-spotbugs")
+    fi
   fi
 
-  # Node linters
-  if grep -qE "^\s+lint-node-eslint\s" <<<"$recipes"; then
-    LINTERS+=("Node ESLint|eslint|just lint-node-eslint")
-  fi
-  if grep -qE "^\s+lint-node-format\s" <<<"$recipes"; then
-    LINTERS+=("Node Format|prettier|just lint-node-format")
-  fi
-  if grep -qE "^\s+lint-node-ts-types\s" <<<"$recipes"; then
-    LINTERS+=("Node Types|tsc|just lint-node-ts-types")
+  # Node linters - if lint-node exists, use it (calls scripts directly to show each row)
+  # Otherwise use individual recipes if they exist
+  if grep -qE "^\s+lint-node\s" <<<"$recipes"; then
+    local node_lint_dir="$(dirname "${SCRIPT_DIR}")/linters/node"
+    if [[ -d "$node_lint_dir" ]]; then
+      LINTERS+=("Node ESLint|eslint|${node_lint_dir}/eslint.sh")
+      LINTERS+=("Node Format|prettier|${node_lint_dir}/format.sh check")
+      LINTERS+=("Node Types|tsc|${node_lint_dir}/types.sh")
+    fi
+  else
+    # No lint-node, check for individual recipes
+    if grep -qE "^\s+lint-node-eslint\s" <<<"$recipes"; then
+      LINTERS+=("Node ESLint|eslint|just lint-node-eslint")
+    fi
+    if grep -qE "^\s+lint-node-format\s" <<<"$recipes"; then
+      LINTERS+=("Node Format|prettier|just lint-node-format")
+    fi
+    if grep -qE "^\s+lint-node-ts-types\s" <<<"$recipes"; then
+      LINTERS+=("Node Types|tsc|just lint-node-ts-types")
+    fi
   fi
 }
 

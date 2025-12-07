@@ -67,22 +67,18 @@ tools-install: _ensure-devtools
 
 # ▪ Run all checks
 [group('verify')]
-verify: _ensure-devtools check-tools lint-all test
-    #!/usr/bin/env bash
-    source "{{colors}}"
-    just_success "All checks passed"
+verify: _ensure-devtools check-tools
+    @{{devtools_dir}}/scripts/verify.sh
+    @just test
 
 # ==================================================================================== #
 # LINT
 # ==================================================================================== #
 
-# ▪ Run all linters (base + Java)
+# ▪ Run all linters with summary
 [group('lint')]
-lint-all: _ensure-devtools lint-java
-    #!/usr/bin/env bash
-    source "{{colors}}"
-    just --justfile {{devtools_dir}}/justfile lint-base
-    just_success "All linting checks completed"
+lint-all: _ensure-devtools
+    @{{devtools_dir}}/scripts/verify.sh
 
 # Individual base linters (can be run separately)
 [group('lint')]

@@ -112,16 +112,26 @@ Override `lint-all` in your justfile to add Java, Node, Python, etc.:
 ```just
 java_lint := devtools_dir + "/linters/java"
 
-# Extend base linters with Java-specific ones
-lint-all: _ensure-devtools lint-java
-    #!/usr/bin/env bash
-    source "{{colors}}"
-    just --justfile {{devtools_dir}}/justfile lint-base
-    just_success "All linting checks completed"
+# Run all linters with summary (automatically detects Java linters)
+lint-all: _ensure-devtools
+    @{{devtools_dir}}/scripts/verify.sh
 
+# Run all Java linters together (convenience command)
 lint-java:
     @{{java_lint}}/lint.sh
+
+# Individual Java linters (auto-detected by verify.sh)
+lint-java-checkstyle:
+    @{{java_lint}}/checkstyle.sh
+
+lint-java-pmd:
+    @{{java_lint}}/pmd.sh
+
+lint-java-spotbugs:
+    @{{java_lint}}/spotbugs.sh
 ```
+
+When you run `just lint-all` or `just verify`, the verify script automatically detects `lint-java-checkstyle`, `lint-java-pmd`, and `lint-java-spotbugs` recipes and runs them individually with a summary table. You can also run `just lint-java` to execute all Java linters together.
 
 See [`examples/java-justfile`](examples/java-justfile) for a complete example.
 
@@ -130,16 +140,26 @@ See [`examples/java-justfile`](examples/java-justfile) for a complete example.
 ```just
 node_lint := devtools_dir + "/linters/node"
 
-# Extend base linters with Node linters
-lint-all: _ensure-devtools lint-node
-    #!/usr/bin/env bash
-    source "{{colors}}"
-    just --justfile {{devtools_dir}}/justfile lint-base
-    just_success "All linting checks completed"
+# Run all linters with summary (automatically detects Node linters)
+lint-all: _ensure-devtools
+    @{{devtools_dir}}/scripts/verify.sh
 
+# Run all Node linters together (convenience command)
 lint-node:
     @{{node_lint}}/lint.sh
+
+# Individual Node linters (auto-detected by verify.sh)
+lint-node-eslint:
+    @{{node_lint}}/eslint.sh
+
+lint-node-format:
+    @{{node_lint}}/format.sh check
+
+lint-node-ts-types:
+    @{{node_lint}}/types.sh
 ```
+
+When you run `just lint-all` or `just verify`, the verify script automatically detects `lint-node-*` recipes and runs them individually with a summary table. You can also run `just lint-node` to execute all Node linters together.
 
 See [`examples/node-justfile`](examples/node-justfile) for a complete example.
 
@@ -203,20 +223,32 @@ lint-rust:
 ### Minimal Project (base linters only)
 
 ```just
-# Run all linters (uses base linters only)
+# Run all linters with summary (base linters only)
 lint-all: _ensure-devtools
-    @just --justfile {{devtools_dir}}/justfile lint-base
+    @{{devtools_dir}}/scripts/verify.sh
 ```
 
 ### Multiple Languages
 
 ```just
-lint-all: _ensure-devtools lint-java lint-python lint-node
-    #!/usr/bin/env bash
-    source "{{colors}}"
-    just --justfile {{devtools_dir}}/justfile lint-base
-    just_success "All linting checks completed"
+# Define linters from multiple languages - verify.sh auto-detects them all
+lint-all: _ensure-devtools
+    @{{devtools_dir}}/scripts/verify.sh
+
+# Java linters
+lint-java-checkstyle:
+    @{{java_lint}}/checkstyle.sh
+
+# Python linters  
+lint-python:
+    ruff check .
+
+# Node linters
+lint-node-eslint:
+    @{{node_lint}}/eslint.sh
 ```
+
+All defined `lint-*` recipes are automatically detected and included in the summary.
 
 ## Utilities
 

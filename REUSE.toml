@@ -11,6 +11,7 @@ path = [
     "REUSE.toml",
     ".mise.toml",
     "justfile",
+    ".gitignore",
     "renovate.json",
     ".github/**/*.yml",
     "examples/*",

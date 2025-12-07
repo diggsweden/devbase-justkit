@@ -19,12 +19,12 @@ main() {
 
   # Check if project has TypeScript configured
   if [[ ! -f "tsconfig.json" ]] && [[ ! -f "package.json" ]]; then
-    print_warn "No tsconfig.json or package.json found. Skipping type checking"
+    print_warning "No tsconfig.json or package.json found. Skipping type checking"
     return 0
   fi
 
   if [[ -f "package.json" ]] && ! grep -q "typescript" package.json 2>/dev/null; then
-    print_warn "TypeScript not configured in package.json. Skipping"
+    print_warning "TypeScript not configured in package.json. Skipping"
     return 0
   fi
 

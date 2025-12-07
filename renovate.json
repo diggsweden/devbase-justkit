@@ -1,0 +1,87 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "local>diggsweden/.github:renovate-base"
+  ],
+  "enabledManagers": [
+    "github-actions",
+    "mise",
+    "custom.regex"
+  ],
+  "packageRules": [
+    {
+      "description": "Code quality and linting tools",
+      "matchManagers": [
+        "mise"
+      ],
+      "matchPackageNames": [
+        "aqua:koalaman/shellcheck",
+        "aqua:mvdan/sh",
+        "aqua:google/yamlfmt",
+        "ubi:rvben/rumdl",
+        "aqua:hadolint/hadolint"
+      ],
+      "addLabels": [
+        "linting"
+      ],
+      "groupName": "linting tools"
+    },
+    {
+      "description": "Security and compliance tools",
+      "matchManagers": [
+        "mise"
+      ],
+      "matchPackageNames": [
+        "aqua:zricethezav/gitleaks",
+        "aqua:siderolabs/conform",
+        "aqua:rhysd/actionlint",
+        "pipx:reuse"
+      ],
+      "addLabels": [
+        "security"
+      ],
+      "groupName": "security tools"
+    },
+    {
+      "description": "Testing tools",
+      "matchManagers": [
+        "mise"
+      ],
+      "matchPackageNames": [
+        "aqua:bats-core/bats-core"
+      ],
+      "addLabels": [
+        "testing"
+      ],
+      "groupName": "testing tools"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/tests/setup-bats-libs\\.sh$/"
+      ],
+      "description": "Update BATS helper library versions",
+      "matchStrings": [
+        "git clone --depth 1 --branch (?<currentValue>v[0-9.]+) https://github.com/bats-core/(?<depName>bats-[a-z]+)\\.git"
+      ],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "bats-core/{{{depName}}}",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/tests/.+\\.bats$/"
+      ],
+      "description": "Update BATS minimum version requirement",
+      "matchStrings": [
+        "bats_require_minimum_version (?<currentValue>[0-9.]+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "bats-core/bats-core",
+      "versioningTemplate": "semver"
+    }
+  ]
+}
