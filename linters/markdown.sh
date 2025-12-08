@@ -13,8 +13,10 @@ readonly ACTION="${1:-check}"
 shift || true
 readonly DISABLE="${1:-MD013}"
 
+readonly EXCLUDE=".github-shared,node_modules,vendor,target"
+
 check_markdown() {
-  local args=(check .)
+  local args=(check . --exclude "$EXCLUDE")
   [[ -n "$DISABLE" ]] && args+=(--disable "$DISABLE")
   if rumdl "${args[@]}"; then
     print_success "Markdown linting passed"
@@ -26,7 +28,7 @@ check_markdown() {
 }
 
 fix_markdown() {
-  local args=(check --fix .)
+  local args=(check --fix . --exclude "$EXCLUDE")
   [[ -n "$DISABLE" ]] && args+=(--disable "$DISABLE")
   if rumdl "${args[@]}"; then
     print_success "Markdown files fixed"
