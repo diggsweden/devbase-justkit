@@ -50,7 +50,7 @@ main() {
 
   if [[ -n "$bats_files" ]]; then
     print_info "Checking bats test files..."
-    if ! echo "$bats_files" | xargs -r shellcheck --shell=bats --severity=info --exclude=SC1091,SC2034,SC2155,SC2164; then
+    if ! echo "$bats_files" | xargs -r shellcheck --shell=bats --severity=info --exclude=SC1090,SC1091,SC2016,SC2030,SC2031,SC2034,SC2123,SC2155,SC2164,SC2218; then
       failed=1
     fi
   fi

@@ -10,6 +10,7 @@ load "${BATS_TEST_DIRNAME}/libs/bats-support/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-assert/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-file/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-mock/stub.bash"
+load "${BATS_TEST_DIRNAME}/test_helper.bash"
 
 setup() {
   TEST_DIR="$(temp_make)"
@@ -21,7 +22,7 @@ setup() {
 
 teardown() {
   unstub conform 2>/dev/null || true
-  temp_del "$TEST_DIR"
+  safe_temp_del "$TEST_DIR"
 }
 
 @test "commits.sh skips on default branch" {
