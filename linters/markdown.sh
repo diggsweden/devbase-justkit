@@ -13,7 +13,7 @@ readonly ACTION="${1:-check}"
 shift || true
 readonly DISABLE="${1:-MD013}"
 
-readonly EXCLUDE=".github-shared,node_modules,vendor,target"
+readonly EXCLUDE=".github-shared,node_modules,vendor,target,CHANGELOG.md"
 
 check_markdown() {
   local args=(check . --exclude "$EXCLUDE")

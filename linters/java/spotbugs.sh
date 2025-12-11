@@ -11,6 +11,9 @@ source "${SCRIPT_DIR}/../../utils/colors.sh"
 
 maven_opts=(--batch-mode --no-transfer-progress --errors -Dstyle.color=always)
 
+# Default exclude file from devbase-justkit (excludes generated-sources)
+DEFAULT_EXCLUDE="${SCRIPT_DIR}/config/spotbugs-exclude.xml"
+
 main() {
   print_header "JAVA SPOTBUGS"
 
@@ -24,7 +27,17 @@ main() {
     return 1
   fi
 
-  if mvn "${maven_opts[@]}" spotbugs:check; then
+  # Use project's exclude file if exists, otherwise use default
+  local exclude_opt=()
+  if [[ -f "development/spotbugs-exclude.xml" ]]; then
+    exclude_opt=(-Dspotbugs.excludeFilterFile=development/spotbugs-exclude.xml)
+  elif [[ -f ".spotbugs-exclude.xml" ]]; then
+    exclude_opt=(-Dspotbugs.excludeFilterFile=.spotbugs-exclude.xml)
+  elif [[ -f "${DEFAULT_EXCLUDE}" ]]; then
+    exclude_opt=(-Dspotbugs.excludeFilterFile="${DEFAULT_EXCLUDE}")
+  fi
+
+  if mvn "${maven_opts[@]}" ${exclude_opt[@]+"${exclude_opt[@]}"} spotbugs:check; then
     print_success "SpotBugs passed"
     return 0
   else

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+
+SPDX-License-Identifier: CC0-1.0
+-->
+<FindBugsFilter>
+    <!-- Exclude generated sources (OpenAPI, etc.) -->
+    <Match>
+        <Source name="~.*generated-sources.*"/>
+    </Match>
+    <Match>
+        <Source name="~.*generated.*"/>
+    </Match>
+</FindBugsFilter>

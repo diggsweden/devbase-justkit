@@ -12,7 +12,11 @@ source "${SCRIPT_DIR}/../utils/colors.sh"
 readonly MODE="${1:-check}"
 
 find_shell_scripts() {
-  find . -type f \( -name "*.sh" -o -name "*.bash" \) -not -path "./.git/*" 2>/dev/null
+  find . -type f \( -name "*.sh" -o -name "*.bash" \) \
+    -not -path "./.git/*" \
+    -not -path "./target/*" \
+    -not -path "./node_modules/*" \
+    2>/dev/null
 }
 
 check_format() {
