@@ -340,6 +340,36 @@ Available functions:
 
 ## Configuration
 
+### Override Default Linter Configs
+
+Linters use sensible defaults (e.g., excluding `target/`, `node_modules/`, `generated-sources/`). Override by adding config files to your project:
+
+| Linter | Project config file | Default exclusions |
+|--------|--------------------|--------------------|
+| yamlfmt | `.yamlfmt` | `target/`, `node_modules/`, `generated-sources/`, `dist/`, `build/` |
+| spotbugs | `development/spotbugs-exclude.xml` or `.spotbugs-exclude.xml` | `*generated-sources*` |
+| gitleaks | `.gitleaks.toml` | none |
+| rumdl | `.rumdl.toml` | `CHANGELOG.md` |
+
+Example `.yamlfmt`:
+
+```yaml
+exclude:
+  - target/
+  - my-custom-dir/
+formatter:
+  type: basic
+  retain_line_breaks_single: true
+```
+
+Example `development/spotbugs-exclude.xml`:
+
+```xml
+<FindBugsFilter>
+    <Match><Package name="~com\.example\.generated.*"/></Match>
+</FindBugsFilter>
+```
+
 ### Custom Repository Location
 
 Override the default repository URL via environment variable:
@@ -365,7 +395,11 @@ devtools_repo := env("DEVBASE_JUSTKIT_REPO", "https://github.com/diggsweden/devb
 ```text
 devbase-justkit/
 ├── linters/
+│   ├── config/
+│   │   └── .yamlfmt           # Default yamlfmt config
 │   ├── java/
+│   │   ├── config/
+│   │   │   └── spotbugs-exclude.xml  # Default spotbugs exclusions
 │   │   ├── checkstyle.sh
 │   │   ├── format.sh
 │   │   ├── lint.sh
