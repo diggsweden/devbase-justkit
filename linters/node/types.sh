@@ -33,9 +33,13 @@ main() {
     npm run typecheck
   elif [[ -f "package.json" ]] && grep -q '"type-check"' package.json 2>/dev/null; then
     npm run type-check
+  elif [[ -x "node_modules/.bin/tsc" ]]; then
+    # Use locally installed tsc
+    node_modules/.bin/tsc --noEmit
   else
-    # Fallback to direct tsc command
-    npx tsc --noEmit
+    # Fallback: use npx with explicit typescript package
+    # Note: 'npx tsc' alone would install wrong package (deprecated 'tsc' not 'typescript')
+    npx -p typescript tsc --noEmit
   fi
 
   if [[ $? -eq 0 ]]; then
