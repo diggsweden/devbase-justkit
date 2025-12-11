@@ -11,8 +11,21 @@ source "${SCRIPT_DIR}/../utils/colors.sh"
 
 readonly ACTION="${1:-check}"
 
+# Default config with standard exclusions
+readonly DEFAULT_CONFIG="${SCRIPT_DIR}/config/.yamlfmt"
+
+get_config_flag() {
+  # If project has its own config, use default behavior; otherwise use our default
+  if [[ ! -f ".yamlfmt" && ! -f "yamlfmt.yml" && ! -f "yamlfmt.yaml" && -f "${DEFAULT_CONFIG}" ]]; then
+    printf "%s" "-conf ${DEFAULT_CONFIG}"
+  fi
+}
+
 check_yaml() {
-  if yamlfmt -lint .; then
+  local conf_flag
+  conf_flag=$(get_config_flag)
+  # shellcheck disable=SC2086
+  if yamlfmt -lint $conf_flag .; then
     print_success "YAML linting passed"
     return 0
   else
@@ -22,7 +35,10 @@ check_yaml() {
 }
 
 fix_yaml() {
-  if yamlfmt .; then
+  local conf_flag
+  conf_flag=$(get_config_flag)
+  # shellcheck disable=SC2086
+  if yamlfmt $conf_flag .; then
     print_success "YAML files formatted"
     return 0
   else

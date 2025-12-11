@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# Default yamlfmt configuration for devbase-justkit
+# Projects can override this by creating their own .yamlfmt file
+
+exclude:
+  - target/
+  - node_modules/
+  - vendor/
+  - dist/
+  - build/
+  - generated-sources/
+  - "**/*generated*"
+
+formatter:
+  type: basic
+  retain_line_breaks_single: true
