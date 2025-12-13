@@ -72,11 +72,18 @@ check_for_updates() {
 
 main() {
   if [[ -d "$DIR" ]]; then
+    # Skip update check if checked within the last hour (use marker file mtime)
+    local marker="$DIR/.last-update-check"
+    if [[ -f "$marker" ]] && [[ -z "$(find "$marker" -mmin +60 2>/dev/null)" ]]; then
+      return 0
+    fi
+
     # Try to fetch tags only (shallow), but don't fail if network is unavailable
     if ! git -C "$DIR" fetch --tags --depth 1 --quiet 2>/dev/null; then
       print_warning "Could not check for updates (no network connection)"
       return 0
     fi
+    touch "$marker"
     check_for_updates "$(get_current_version)" "$(get_latest_version)"
   else
     clone_repo
