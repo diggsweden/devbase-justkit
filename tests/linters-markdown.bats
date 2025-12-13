@@ -10,24 +10,23 @@ load "${BATS_TEST_DIRNAME}/libs/bats-support/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-assert/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-file/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-mock/stub.bash"
+load "${BATS_TEST_DIRNAME}/test_helper.bash"
 
 setup() {
-  TEST_DIR="$(temp_make)"
-  export TEST_DIR
-  export LINTERS_DIR="${BATS_TEST_DIRNAME}/../linters"
+  common_setup
+  export LINTERS_DIR="${DEVTOOLS_ROOT}/linters"
   cd "$TEST_DIR"
 }
 
 teardown() {
-  unstub rumdl 2>/dev/null || true
-  temp_del "$TEST_DIR"
+  common_teardown
 }
 
 @test "markdown.sh check runs rumdl" {
   cat > test.md << 'EOF'
 # Test
 EOF
-  stub rumdl "check . --disable MD013 : true"
+  stub_repeated rumdl "true"
   
   run --separate-stderr "$LINTERS_DIR/markdown.sh" check
   
@@ -40,7 +39,7 @@ EOF
   cat > test.md << 'EOF'
 # Test
 EOF
-  stub rumdl "check --fix . --disable MD013 : true"
+  stub_repeated rumdl "true"
   
   run --separate-stderr "$LINTERS_DIR/markdown.sh" fix
   

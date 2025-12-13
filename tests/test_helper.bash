@@ -5,11 +5,39 @@
 #
 # Shared test helper functions for BATS tests
 #
+# This file follows the same patterns as devbase-core and reusable-ci test helpers
+# to ensure consistent test isolation across all devbase projects.
+#
 # Shellcheck disabled:
 #   SC2016 - Expressions don't expand in single quotes (intentional in mock scripts)
 #   SC2154 - Variables like $output/$stderr are set by bats, not this script
 #   SC2164 - cd without || exit is fine in test helpers (bats handles failures)
 #   SC2268 - x-prefix in comparisons is a common bats pattern for empty checks
+
+# =============================================================================
+# Common Setup/Teardown Helpers
+# =============================================================================
+
+# Standard test setup - creates temp dir and sets DEVTOOLS_ROOT
+# Usage: common_setup
+common_setup() {
+  TEST_DIR="$(temp_make)"
+  export TEST_DIR
+  export DEVTOOLS_ROOT="${BATS_TEST_DIRNAME}/.."
+}
+
+# Standard test teardown - cleans up temp dir safely
+# Usage: common_teardown
+common_teardown() {
+  safe_temp_del "$TEST_DIR"
+}
+
+# Setup with isolated HOME environment
+# Usage: common_setup_isolated
+common_setup_isolated() {
+  common_setup
+  setup_isolated_home
+}
 
 # =============================================================================
 # Safe Temp Directory Cleanup
@@ -47,15 +75,34 @@ safe_temp_del() {
 }
 
 # =============================================================================
+# Isolated Environment Setup
+# =============================================================================
+
+# Setup isolated HOME and XDG directories in TEST_DIR
+# Usage: setup_isolated_home
+# Sets: HOME, XDG_DATA_HOME, XDG_CONFIG_HOME
+setup_isolated_home() {
+  export HOME="${TEST_DIR}/home"
+  export XDG_DATA_HOME="${HOME}/.local/share"
+  export XDG_CONFIG_HOME="${HOME}/.config"
+  mkdir -p "$HOME"
+  mkdir -p "$XDG_DATA_HOME"
+  mkdir -p "$XDG_CONFIG_HOME"
+}
+
+# =============================================================================
 # Git Repository Setup Helpers
 # =============================================================================
 
 # Initialize a minimal git repository for testing
 # Usage: init_git_repo
 init_git_repo() {
+  export GIT_CONFIG_NOSYSTEM=1
   git init -q
   git config user.email "test@example.com"
   git config user.name "Test User"
+  # Make git objects writable so safe_temp_del can clean up
+  git config core.sharedRepository 0644
   echo "initial" >file.txt
   git add file.txt
   git commit -q -m "Initial commit"
@@ -64,11 +111,17 @@ init_git_repo() {
 # Initialize git repo with isolated HOME and config
 # Usage: init_isolated_git_repo
 init_isolated_git_repo() {
-  export HOME="$TEST_DIR/home"
+  setup_isolated_home
   export GIT_CONFIG_NOSYSTEM=1
-  export GIT_CONFIG_GLOBAL="$TEST_DIR/home/.gitconfig"
-  mkdir -p "$HOME"
+  export GIT_CONFIG_GLOBAL="${HOME}/.gitconfig"
   init_git_repo
+}
+
+# Setup for tests that need isolated git repository
+# Usage: common_setup_with_isolated_git
+common_setup_with_isolated_git() {
+  common_setup
+  init_isolated_git_repo
 }
 
 # =============================================================================

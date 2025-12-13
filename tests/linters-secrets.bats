@@ -13,16 +13,15 @@ load "${BATS_TEST_DIRNAME}/libs/bats-mock/stub.bash"
 load "${BATS_TEST_DIRNAME}/test_helper.bash"
 
 setup() {
-  TEST_DIR="$(temp_make)"
-  export TEST_DIR
-  export LINTERS_DIR="${BATS_TEST_DIRNAME}/../linters"
+  common_setup
+  export LINTERS_DIR="${DEVTOOLS_ROOT}/linters"
   cd "$TEST_DIR"
-  git init -q
+  init_git_repo
 }
 
 teardown() {
   unstub gitleaks 2>/dev/null || true
-  safe_temp_del "$TEST_DIR"
+  common_teardown
 }
 
 @test "secrets.sh runs gitleaks" {

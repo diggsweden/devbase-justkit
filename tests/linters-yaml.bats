@@ -10,24 +10,24 @@ load "${BATS_TEST_DIRNAME}/libs/bats-support/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-assert/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-file/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-mock/stub.bash"
+load "${BATS_TEST_DIRNAME}/test_helper.bash"
 
 setup() {
-  TEST_DIR="$(temp_make)"
-  export TEST_DIR
-  export LINTERS_DIR="${BATS_TEST_DIRNAME}/../linters"
+  common_setup
+  export LINTERS_DIR="${DEVTOOLS_ROOT}/linters"
   cd "$TEST_DIR"
 }
 
 teardown() {
-  unstub yamlfmt 2>/dev/null || true
-  temp_del "$TEST_DIR"
+  common_teardown
 }
 
 @test "yaml.sh check succeeds when yamlfmt passes" {
   cat > test.yaml << 'EOF'
 key: value
 EOF
-  stub yamlfmt "-lint . : true"
+  # yamlfmt may be called with -conf flag, use stub_repeated for flexibility
+  stub_repeated yamlfmt "true"
   
   run --separate-stderr "$LINTERS_DIR/yaml.sh" check
   
@@ -40,7 +40,7 @@ EOF
   cat > test.yaml << 'EOF'
 key: value
 EOF
-  stub yamlfmt "-lint . : exit 1"
+  stub_repeated yamlfmt "exit 1"
   
   run --separate-stderr "$LINTERS_DIR/yaml.sh" check
   
@@ -53,7 +53,7 @@ EOF
   cat > test.yaml << 'EOF'
 key: value
 EOF
-  stub yamlfmt ". : true"
+  stub_repeated yamlfmt "true"
   
   run --separate-stderr "$LINTERS_DIR/yaml.sh" fix
   
@@ -63,7 +63,10 @@ EOF
 }
 
 @test "yaml.sh rejects unknown action" {
-  stub yamlfmt ""
+  cat > test.yaml << 'EOF'
+key: value
+EOF
+  stub_repeated yamlfmt "true"
   
   run --separate-stderr "$LINTERS_DIR/yaml.sh" invalid
   

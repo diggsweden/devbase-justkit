@@ -10,17 +10,17 @@ load "${BATS_TEST_DIRNAME}/libs/bats-support/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-assert/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-file/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-mock/stub.bash"
+load "${BATS_TEST_DIRNAME}/test_helper.bash"
 
 setup() {
-  TEST_DIR="$(temp_make)"
-  export TEST_DIR
-  export LINTERS_DIR="${BATS_TEST_DIRNAME}/../linters"
+  common_setup
+  export LINTERS_DIR="${DEVTOOLS_ROOT}/linters"
   cd "$TEST_DIR"
 }
 
 teardown() {
   unstub reuse 2>/dev/null || true
-  temp_del "$TEST_DIR"
+  common_teardown
 }
 
 @test "license.sh runs reuse lint" {

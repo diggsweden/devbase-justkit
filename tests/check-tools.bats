@@ -9,9 +9,11 @@ bats_require_minimum_version 1.13.0
 load "${BATS_TEST_DIRNAME}/libs/bats-support/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-assert/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-file/load.bash"
+load "${BATS_TEST_DIRNAME}/test_helper.bash"
 
 setup() {
-  export SCRIPT_DIR="${BATS_TEST_DIRNAME}/../scripts"
+  export DEVTOOLS_ROOT="${BATS_TEST_DIRNAME}/.."
+  export SCRIPT_DIR="${DEVTOOLS_ROOT}/scripts"
 }
 
 @test "check-tools.sh checks for specified tools" {

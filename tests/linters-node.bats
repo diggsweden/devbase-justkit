@@ -10,17 +10,17 @@ load "${BATS_TEST_DIRNAME}/libs/bats-support/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-assert/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-file/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-mock/stub.bash"
+load "${BATS_TEST_DIRNAME}/test_helper.bash"
 
 setup() {
-  TEST_DIR="$(temp_make)"
-  export TEST_DIR
-  export NODE_LINTERS="${BATS_TEST_DIRNAME}/../linters/node"
+  common_setup
+  export NODE_LINTERS="${DEVTOOLS_ROOT}/linters/node"
   cd "$TEST_DIR"
 }
 
 teardown() {
   unstub npx 2>/dev/null || true
-  temp_del "$TEST_DIR"
+  common_teardown
 }
 
 @test "eslint.sh skips when no package.json present" {

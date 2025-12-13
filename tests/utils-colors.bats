@@ -8,9 +8,11 @@ bats_require_minimum_version 1.13.0
 
 load "${BATS_TEST_DIRNAME}/libs/bats-support/load.bash"
 load "${BATS_TEST_DIRNAME}/libs/bats-assert/load.bash"
+load "${BATS_TEST_DIRNAME}/test_helper.bash"
 
 setup() {
-  source "${BATS_TEST_DIRNAME}/../utils/colors.sh"
+  export DEVTOOLS_ROOT="${BATS_TEST_DIRNAME}/.."
+  source "${DEVTOOLS_ROOT}/utils/colors.sh"
 }
 
 @test "print_success outputs to stdout with checkmark" {
