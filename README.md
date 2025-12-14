@@ -1,4 +1,4 @@
-# devbase-justkit
+# devbase-check
 
 <!--
 SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
@@ -6,12 +6,12 @@ SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
 SPDX-License-Identifier: CC0-1.0
 -->
 
-[![Tag](https://img.shields.io/github/v/tag/diggsweden/devbase-justkit?style=for-the-badge&color=green)](https://github.com/diggsweden/devbase-justkit/tags)
+[![Tag](https://img.shields.io/github/v/tag/diggsweden/devbase-check?style=for-the-badge&color=green)](https://github.com/diggsweden/devbase-check/tags)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
-[![REUSE](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.reuse.software%2Fstatus%2Fgithub.com%2Fdiggsweden%2Fdevbase-justkit&query=status&style=for-the-badge&label=REUSE&color=lightblue)](https://api.reuse.software/info/github.com/diggsweden/devbase-justkit)
+[![REUSE](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.reuse.software%2Fstatus%2Fgithub.com%2Fdiggsweden%2Fdevbase-check&query=status&style=for-the-badge&label=REUSE&color=lightblue)](https://api.reuse.software/info/github.com/diggsweden/devbase-check)
 
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/diggsweden/devbase-justkit/badge?style=for-the-badge)](https://scorecard.dev/viewer/?uri=github.com/diggsweden/devbase-justkit)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/diggsweden/devbase-check/badge?style=for-the-badge)](https://scorecard.dev/viewer/?uri=github.com/diggsweden/devbase-check)
 
 Reusable linting for [Just](https://github.com/casey/just) task runner. Install once, use across multiple projects.
 
@@ -39,7 +39,7 @@ Reusable linting for [Just](https://github.com/casey/just) task runner. Install 
 2. **Run setup**:
 
    ```bash
-   just setup-devtools  # Downloads to ~/.local/share/devbase-justkit
+   just setup-devtools  # Downloads to ~/.local/share/devbase-check
    just lint-all        # Runs all linters
    ```
 
@@ -298,7 +298,7 @@ lint-java-spotbugs:
     fi
 ```
 
-**Note:** The justfile is the interface - `verify.sh` respects all recipe overrides. Changes take effect immediately without updating devbase-justkit.
+**Note:** The justfile is the interface - `verify.sh` respects all recipe overrides. Changes take effect immediately without updating devbase-check.
 
 ## Utilities
 
@@ -361,24 +361,24 @@ Override the default repository URL via environment variable:
 
 ```bash
 # Bash/Zsh - add to .bashrc or .zshrc
-export DEVBASE_JUSTKIT_REPO="https://internal.git/org/devbase-justkit"
+export DEVBASE_CHECK_REPO="https://internal.git/org/devbase-check"
 ```
 
 ```fish
 # Fish - add to config.fish
-set -gx DEVBASE_JUSTKIT_REPO "https://internal.git/org/devbase-justkit"
+set -gx DEVBASE_CHECK_REPO "https://internal.git/org/devbase-check"
 ```
 
 The justfile picks this up automatically:
 
 ```just
-devtools_repo := env("DEVBASE_JUSTKIT_REPO", "https://github.com/diggsweden/devbase-justkit")
+devtools_repo := env("DEVBASE_CHECK_REPO", "https://github.com/diggsweden/devbase-check")
 ```
 
 ## Directory Structure
 
 ```text
-devbase-justkit/
+devbase-check/
 ├── linters/
 │   ├── config/
 │   │   └── .yamlfmt           # Default yamlfmt config

@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
 #
 # SPDX-License-Identifier: CC0-1.0
-# devbase-justkit is a script library distributed via git
+# devbase-check is a script library distributed via git
 # No build artifacts or containers - using 'meta' type for changelog-only releases
 artifacts:
-  - name: devbase-justkit
+  - name: devbase-check
     project-type: meta
     working-directory: .
 containers: []

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: CC0-1.0
 
-# Quality checks and automation for devbase-justkit
+# Quality checks and automation for devbase-check
 # Run 'just' to see available commands
 
 lint := "./linters"
@@ -21,7 +21,7 @@ NC := "\\033[0m"
 
 # Display available recipes
 default:
-    @printf "{{CYAN_BOLD}} DevBase JustKit{{NC}}\n"
+    @printf "{{CYAN_BOLD}} DevBase Check{{NC}}\n"
     @printf "\n"
     @printf "Quick start: {{GREEN}}just verify{{NC}} | {{BLUE}}just lint-all{{NC}} | {{MAGENTA}}just lint-fix{{NC}}\n"
     @printf "\n"

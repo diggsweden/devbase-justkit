@@ -11,7 +11,7 @@ source "${SCRIPT_DIR}/../../utils/colors.sh"
 
 maven_opts=(--batch-mode --no-transfer-progress --errors -Dstyle.color=always)
 
-# Default exclude file from devbase-justkit (excludes generated-sources)
+# Default exclude file from devbase-check (excludes generated-sources)
 DEFAULT_EXCLUDE="${SCRIPT_DIR}/config/spotbugs-exclude.xml"
 
 main() {

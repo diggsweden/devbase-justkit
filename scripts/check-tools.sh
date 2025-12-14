@@ -27,12 +27,12 @@ check_tool() {
 }
 
 check_devtools() {
-  local devtools_dir="${XDG_DATA_HOME:-$HOME/.local/share}/devbase-justkit"
+  local devtools_dir="${XDG_DATA_HOME:-$HOME/.local/share}/devbase-check"
   if [[ -d "$devtools_dir" ]]; then
-    print_success "devbase-justkit ($devtools_dir)"
+    print_success "devbase-check ($devtools_dir)"
     return 0
   else
-    print_error "devbase-justkit (not installed)"
+    print_error "devbase-check (not installed)"
     return 1
   fi
 }

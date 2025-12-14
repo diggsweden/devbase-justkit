@@ -36,7 +36,7 @@ update_to_version() {
 }
 
 clone_repo() {
-  print_info "Cloning devbase-justkit to $DIR..."
+  print_info "Cloning devbase-check to $DIR..."
   mkdir -p "$(dirname "$DIR")"
   git clone --depth 1 "$REPO" "$DIR" --quiet
   git -C "$DIR" fetch --tags --depth 1 --quiet

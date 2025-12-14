@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: CC0-1.0
 
-# Default yamlfmt configuration for devbase-justkit
+# Default yamlfmt configuration for devbase-check
 # Projects can override this by creating their own .yamlfmt file
 
 exclude:
@@ -13,6 +13,7 @@ exclude:
   - build/
   - generated-sources/
   - "**/*generated*"
+  - tests/libs/
 
 formatter:
   type: basic
