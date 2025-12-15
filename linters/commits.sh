@@ -8,17 +8,7 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/../utils/colors.sh"
-
-get_default_branch() {
-  git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed "s@^refs/remotes/origin/@@" || echo "main"
-}
-
-has_commits_to_check() {
-  local default_branch="$1"
-  local count
-  count=$(git rev-list --count "${default_branch}..HEAD" 2>/dev/null || echo 0)
-  [[ "$count" -gt 0 ]]
-}
+source "${SCRIPT_DIR}/../utils/git-utils.sh"
 
 main() {
   print_header "COMMIT HEALTH (CONFORM)"
@@ -33,7 +23,7 @@ main() {
     return 0
   fi
 
-  if ! has_commits_to_check "$default_branch"; then
+  if ! has_commits_since "$default_branch"; then
     print_info "No commits to check on ${current_branch} (compared to ${default_branch})"
     return 0
   fi

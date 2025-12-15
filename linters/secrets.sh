@@ -8,10 +8,7 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/../utils/colors.sh"
-
-get_default_branch() {
-  git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed "s@^refs/remotes/origin/@@" || echo "main"
-}
+source "${SCRIPT_DIR}/../utils/git-utils.sh"
 
 main() {
   print_header "SECRET SCANNING (GITLEAKS)"
@@ -31,9 +28,13 @@ main() {
     print_info "On default branch, scanning all commits..."
     gitleaks detect --source=. --verbose --redact=50
     gitleaks_result=$?
-  else
+  elif branch_exists "$default_branch"; then
     print_info "Scanning commits different from ${default_branch}..."
     gitleaks detect --source=. --log-opts="${default_branch}..HEAD" --verbose --redact=50
+    gitleaks_result=$?
+  else
+    print_info "No base branch found, scanning all commits..."
+    gitleaks detect --source=. --verbose --redact=50
     gitleaks_result=$?
   fi
 
