@@ -29,8 +29,8 @@ update_to_version() {
   local version="$1"
   # Fetch only the specific tag, shallow
   git -C "$DIR" fetch --depth 1 origin tag "$version" --quiet
-  # Stash any local changes to avoid checkout conflicts
-  git -C "$DIR" stash --quiet 2>/dev/null || true
+  # Stash any local changes (including untracked files) to avoid checkout conflicts
+  git -C "$DIR" stash --include-untracked --quiet 2>/dev/null || true
   git -C "$DIR" checkout "$version" --quiet
   print_success "Updated to $version"
 }
